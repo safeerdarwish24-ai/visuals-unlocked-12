@@ -2,6 +2,8 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Download, MapPin, Mail, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ImageUpload } from "@/components/ImageUpload";
+import { useImageStorageContext } from "@/contexts/ImageStorageContext";
 
 const skills = [
   { name: "React / Next.js", level: 95 },
@@ -44,6 +46,17 @@ const CountUp = ({ target, duration = 2 }: { target: number; duration?: number }
 export const AboutSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { getImage, uploadImage, removeImage } = useImageStorageContext();
+
+  const aboutImage = getImage("about_photo");
+
+  const handleUpload = async (file: File) => {
+    await uploadImage("about_photo", file);
+  };
+
+  const handleRemove = () => {
+    removeImage("about_photo");
+  };
 
   return (
     <section id="about" className="py-24 md:py-32 bg-background relative overflow-hidden">
@@ -78,11 +91,22 @@ export const AboutSection = () => {
             {/* Image Container */}
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-accent to-accent-secondary rounded-2xl opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-muted to-secondary">
-                <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-accent-secondary/20" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-8xl font-display font-bold gradient-text opacity-50">D</div>
-                </div>
+              <div className="relative overflow-hidden rounded-2xl">
+                <ImageUpload
+                  imageUrl={aboutImage?.url}
+                  onUpload={handleUpload}
+                  onRemove={handleRemove}
+                  shape="rounded"
+                  aspectRatio="square"
+                  placeholder={
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-muted to-secondary">
+                      <div className="text-8xl font-display font-bold gradient-text opacity-50">D</div>
+                      <p className="text-sm text-muted-foreground mt-4">Upload Professional Photo</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">500x500px recommended</p>
+                    </div>
+                  }
+                  className="w-full"
+                />
               </div>
             </div>
 
