@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { ArrowDown, Github, Linkedin, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { ImageUpload } from "@/components/ImageUpload";
+import { useImageStorageContext } from "@/contexts/ImageStorageContext";
 
 const roles = [
   "Creative Developer",
@@ -14,6 +16,9 @@ export const HeroSection = () => {
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const { getImage, uploadImage, removeImage } = useImageStorageContext();
+
+  const heroImage = getImage("hero_profile");
 
   useEffect(() => {
     const currentRole = roles[roleIndex];
@@ -42,6 +47,14 @@ export const HeroSection = () => {
 
   const scrollToAbout = () => {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleUpload = async (file: File) => {
+    await uploadImage("hero_profile", file);
+  };
+
+  const handleRemove = () => {
+    removeImage("hero_profile");
   };
 
   return (
@@ -98,11 +111,37 @@ export const HeroSection = () => {
       {/* Content */}
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
+          {/* Profile Image Upload */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8 flex justify-center"
+          >
+            <div className="relative">
+              <div className="absolute -inset-2 bg-gradient-to-r from-accent to-accent-secondary rounded-full opacity-50 blur-lg" />
+              <ImageUpload
+                imageUrl={heroImage?.url}
+                onUpload={handleUpload}
+                onRemove={handleRemove}
+                shape="circle"
+                size="lg"
+                placeholder={
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="text-4xl font-display font-bold gradient-text">D</div>
+                    <p className="text-[10px] text-muted-foreground mt-1">Upload Photo</p>
+                  </div>
+                }
+                className="relative z-10 border-4 border-primary-foreground/20"
+              />
+            </div>
+          </motion.div>
+
           {/* Greeting */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="text-accent font-medium mb-4 tracking-wider uppercase text-sm"
           >
             Welcome to my portfolio
@@ -112,7 +151,7 @@ export const HeroSection = () => {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-primary-foreground mb-6"
           >
             I'm{" "}
@@ -123,7 +162,7 @@ export const HeroSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
             className="h-12 md:h-16 flex items-center justify-center mb-8"
           >
             <span className="text-xl md:text-3xl text-primary-foreground/80 font-light">
@@ -140,7 +179,7 @@ export const HeroSection = () => {
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
             className="text-primary-foreground/60 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             Crafting exceptional digital experiences through innovative design
@@ -151,7 +190,7 @@ export const HeroSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
           >
             <Button
@@ -175,7 +214,7 @@ export const HeroSection = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
+            transition={{ duration: 0.8, delay: 1.1 }}
             className="flex justify-center gap-6"
           >
             {[
@@ -202,7 +241,7 @@ export const HeroSection = () => {
         onClick={scrollToAbout}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
+        transition={{ delay: 1.3 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 text-primary-foreground/40 hover:text-accent transition-colors cursor-pointer"
       >
         <motion.div
