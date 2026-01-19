@@ -4,6 +4,7 @@ import { Download, MapPin, Mail, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useImageStorageContext } from "@/contexts/ImageStorageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const skills = [
   { name: "React / Next.js", level: 95 },
@@ -47,6 +48,7 @@ export const AboutSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { getImage, uploadImage, removeImage } = useImageStorageContext();
+  const { isAdmin } = useAuth();
 
   const aboutImage = getImage("about_photo");
 
@@ -92,21 +94,31 @@ export const AboutSection = () => {
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-accent to-accent-secondary rounded-2xl opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
               <div className="relative overflow-hidden rounded-2xl">
-                <ImageUpload
-                  imageUrl={aboutImage?.url}
-                  onUpload={handleUpload}
-                  onRemove={handleRemove}
-                  shape="rounded"
-                  aspectRatio="square"
-                  placeholder={
-                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-muted to-secondary">
+                {isAdmin ? (
+                  <ImageUpload
+                    imageUrl={aboutImage?.url}
+                    onUpload={handleUpload}
+                    onRemove={handleRemove}
+                    shape="rounded"
+                    aspectRatio="square"
+                    placeholder={
+                      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-muted to-secondary">
+                        <div className="text-8xl font-display font-bold gradient-text opacity-50">D</div>
+                        <p className="text-sm text-muted-foreground mt-4">Upload Professional Photo</p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">500x500px recommended</p>
+                      </div>
+                    }
+                    className="w-full"
+                  />
+                ) : (
+                  <div className="w-full aspect-square bg-gradient-to-br from-muted to-secondary flex items-center justify-center overflow-hidden">
+                    {aboutImage?.url ? (
+                      <img src={aboutImage.url} alt="About" className="w-full h-full object-cover" />
+                    ) : (
                       <div className="text-8xl font-display font-bold gradient-text opacity-50">D</div>
-                      <p className="text-sm text-muted-foreground mt-4">Upload Professional Photo</p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">500x500px recommended</p>
-                    </div>
-                  }
-                  className="w-full"
-                />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useImageStorageContext } from "@/contexts/ImageStorageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const roles = [
   "Creative Developer",
@@ -17,6 +18,7 @@ export const HeroSection = () => {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const { getImage, uploadImage, removeImage } = useImageStorageContext();
+  const { isAdmin } = useAuth();
 
   const heroImage = getImage("hero_profile");
 
@@ -111,7 +113,7 @@ export const HeroSection = () => {
       {/* Content */}
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Profile Image Upload */}
+          {/* Profile Image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -120,20 +122,30 @@ export const HeroSection = () => {
           >
             <div className="relative">
               <div className="absolute -inset-2 bg-gradient-to-r from-accent to-accent-secondary rounded-full opacity-50 blur-lg" />
-              <ImageUpload
-                imageUrl={heroImage?.url}
-                onUpload={handleUpload}
-                onRemove={handleRemove}
-                shape="circle"
-                size="lg"
-                placeholder={
-                  <div className="flex flex-col items-center justify-center">
+              {isAdmin ? (
+                <ImageUpload
+                  imageUrl={heroImage?.url}
+                  onUpload={handleUpload}
+                  onRemove={handleRemove}
+                  shape="circle"
+                  size="lg"
+                  placeholder={
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="text-4xl font-display font-bold gradient-text">D</div>
+                      <p className="text-[10px] text-muted-foreground mt-1">Upload Photo</p>
+                    </div>
+                  }
+                  className="relative z-10 border-4 border-primary-foreground/20"
+                />
+              ) : (
+                <div className="relative z-10 w-32 h-32 rounded-full border-4 border-primary-foreground/20 overflow-hidden bg-primary-foreground/10 flex items-center justify-center">
+                  {heroImage?.url ? (
+                    <img src={heroImage.url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
                     <div className="text-4xl font-display font-bold gradient-text">D</div>
-                    <p className="text-[10px] text-muted-foreground mt-1">Upload Photo</p>
-                  </div>
-                }
-                className="relative z-10 border-4 border-primary-foreground/20"
-              />
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
 
