@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -15,6 +17,8 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const { user, isAdmin, signOut } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +48,14 @@ export const Navbar = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
     setIsMobileMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
   };
 
   return (
@@ -93,12 +105,34 @@ export const Navbar = () => {
                 )}
               </motion.button>
             ))}
+            
+            {/* Admin Badge */}
+            {isAdmin && (
+              <div className="flex items-center gap-1 text-xs text-accent bg-accent/10 px-2 py-1 rounded-full">
+                <Shield className="w-3 h-3" />
+                <span>Admin</span>
+              </div>
+            )}
+            
             <Button
               onClick={() => scrollToSection("#contact")}
               className="bg-gradient-to-r from-accent to-accent-secondary text-primary-foreground hover:opacity-90 transition-opacity"
             >
               Let's Talk
             </Button>
+            
+            {/* Logout Button */}
+            {user && (
+              <motion.button
+                onClick={handleSignOut}
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title="Sign out"
+              >
+                <LogOut className="w-5 h-5" />
+              </motion.button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -124,6 +158,18 @@ export const Navbar = () => {
             className="fixed inset-0 z-40 md:hidden bg-background/95 backdrop-blur-xl"
           >
             <div className="flex flex-col items-center justify-center h-full gap-8">
+              {/* Admin Badge Mobile */}
+              {isAdmin && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 text-sm text-accent bg-accent/10 px-3 py-1.5 rounded-full"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>Admin Mode</span>
+                </motion.div>
+              )}
+              
               {navLinks.map((link, index) => (
                 <motion.button
                   key={link.name}
@@ -149,6 +195,23 @@ export const Navbar = () => {
                   Let's Talk
                 </Button>
               </motion.div>
+              
+              {/* Mobile Logout */}
+              {user && (
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Sign Out</span>
+                </motion.button>
+              )}
             </div>
           </motion.div>
         )}

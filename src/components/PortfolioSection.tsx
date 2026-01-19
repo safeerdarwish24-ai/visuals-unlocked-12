@@ -4,6 +4,7 @@ import { ExternalLink, Github, X, Plus, Trash2, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useImageStorageContext } from "@/contexts/ImageStorageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -84,8 +85,8 @@ export const PortfolioSection = () => {
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  
   const { getImage, uploadImage, removeImage } = useImageStorageContext();
+  const { isAdmin } = useAuth();
 
   const filteredProjects =
     activeCategory === "All"
@@ -188,16 +189,18 @@ export const PortfolioSection = () => {
             </motion.button>
           ))}
           
-          {/* Add Project Button */}
-          <motion.button
-            onClick={addNewProject}
-            className="px-5 py-2 rounded-full text-sm font-medium bg-accent/10 text-accent hover:bg-accent/20 transition-all duration-300 flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Plus className="w-4 h-4" />
-            Add Project
-          </motion.button>
+          {/* Add Project Button - Admin Only */}
+          {isAdmin && (
+            <motion.button
+              onClick={addNewProject}
+              className="px-5 py-2 rounded-full text-sm font-medium bg-accent/10 text-accent hover:bg-accent/20 transition-all duration-300 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Plus className="w-4 h-4" />
+              Add Project
+            </motion.button>
+          )}
         </motion.div>
 
         {/* Projects Grid */}
@@ -217,17 +220,25 @@ export const PortfolioSection = () => {
                 className="group"
               >
                 <div className="relative overflow-hidden rounded-2xl bg-card border border-border">
-                  {/* Image with Upload */}
+                  {/* Image with Upload (Admin) or Display (Non-Admin) */}
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    <ImageUpload
-                      imageUrl={getProjectImage(project.id)}
-                      onUpload={(file) => handleProjectImageUpload(project.id, file)}
-                      onRemove={() => handleProjectImageRemove(project.id)}
-                      shape="square"
-                      aspectRatio="landscape"
-                      showOverlay={true}
-                      className="w-full h-full"
-                    />
+                    {isAdmin ? (
+                      <ImageUpload
+                        imageUrl={getProjectImage(project.id)}
+                        onUpload={(file) => handleProjectImageUpload(project.id, file)}
+                        onRemove={() => handleProjectImageRemove(project.id)}
+                        shape="square"
+                        aspectRatio="landscape"
+                        showOverlay={true}
+                        className="w-full h-full"
+                      />
+                    ) : (
+                      <img
+                        src={getProjectImage(project.id)}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     
                     {/* Project Info Overlay */}
                     <div 
@@ -253,32 +264,34 @@ export const PortfolioSection = () => {
                     </div>
                   </div>
 
-                  {/* Quick Actions */}
-                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                    <motion.button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingProject(project);
-                        setIsEditing(true);
-                      }}
-                      className="p-2 rounded-full bg-background/90 text-foreground hover:bg-background"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </motion.button>
-                    <motion.button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteProject(project.id);
-                      }}
-                      className="p-2 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </motion.button>
-                  </div>
+                  {/* Quick Actions - Admin Only */}
+                  {isAdmin && (
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProject(project);
+                          setIsEditing(true);
+                        }}
+                        className="p-2 rounded-full bg-background/90 text-foreground hover:bg-background"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </motion.button>
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteProject(project.id);
+                        }}
+                        className="p-2 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}

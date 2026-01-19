@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Quote, Star, Plus, Trash2, Edit3, X } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
 import { useImageStorageContext } from "@/contexts/ImageStorageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -64,8 +65,8 @@ export const TestimonialsSection = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  
   const { getImage, uploadImage, removeImage } = useImageStorageContext();
+  const { isAdmin } = useAuth();
 
   const next = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
@@ -125,10 +126,12 @@ export const TestimonialsSection = () => {
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-4xl font-display font-bold mb-8">Testimonials</h2>
           <p className="text-muted-foreground mb-8">No testimonials yet.</p>
-          <Button onClick={addNewTestimonial} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Your First Testimonial
-          </Button>
+          {isAdmin && (
+            <Button onClick={addNewTestimonial} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Your First Testimonial
+            </Button>
+          )}
         </div>
       </section>
     );
@@ -185,28 +188,30 @@ export const TestimonialsSection = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="absolute top-4 right-4 flex gap-2">
-                <motion.button
-                  onClick={() => {
-                    setEditingTestimonial(currentTestimonial);
-                    setIsEditing(true);
-                  }}
-                  className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Edit3 className="w-4 h-4" />
-                </motion.button>
-                <motion.button
-                  onClick={() => deleteTestimonial(currentTestimonial.id)}
-                  className="p-2 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </motion.button>
-              </div>
+              {/* Action Buttons - Admin Only */}
+              {isAdmin && (
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <motion.button
+                    onClick={() => {
+                      setEditingTestimonial(currentTestimonial);
+                      setIsEditing(true);
+                    }}
+                    className="p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    onClick={() => deleteTestimonial(currentTestimonial.id)}
+                    className="p-2 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              )}
 
               {/* Rating */}
               <div className="flex gap-1 mb-6 pt-4">
@@ -229,14 +234,24 @@ export const TestimonialsSection = () => {
 
               {/* Author */}
               <div className="flex items-center gap-4">
-                <ImageUpload
-                  imageUrl={getTestimonialAvatar(currentTestimonial.id)}
-                  onUpload={(file) => handleAvatarUpload(currentTestimonial.id, file)}
-                  onRemove={() => handleAvatarRemove(currentTestimonial.id)}
-                  shape="circle"
-                  size="sm"
-                  className="w-14 h-14 border-2 border-accent/20"
-                />
+                {isAdmin ? (
+                  <ImageUpload
+                    imageUrl={getTestimonialAvatar(currentTestimonial.id)}
+                    onUpload={(file) => handleAvatarUpload(currentTestimonial.id, file)}
+                    onRemove={() => handleAvatarRemove(currentTestimonial.id)}
+                    shape="circle"
+                    size="sm"
+                    className="w-14 h-14 border-2 border-accent/20"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full border-2 border-accent/20 overflow-hidden">
+                    <img
+                      src={getTestimonialAvatar(currentTestimonial.id)}
+                      alt={currentTestimonial.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <div>
                   <h4 className="font-bold text-foreground">
                     {currentTestimonial.name}
@@ -283,15 +298,17 @@ export const TestimonialsSection = () => {
                 <ChevronRight className="w-5 h-5" />
               </motion.button>
 
-              {/* Add Button */}
-              <motion.button
-                onClick={addNewTestimonial}
-                className="p-3 rounded-full bg-accent/10 border border-accent/30 hover:bg-accent/20 text-accent transition-colors ml-4"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Plus className="w-5 h-5" />
-              </motion.button>
+              {/* Add Button - Admin Only */}
+              {isAdmin && (
+                <motion.button
+                  onClick={addNewTestimonial}
+                  className="p-3 rounded-full bg-accent/10 border border-accent/30 hover:bg-accent/20 text-accent transition-colors ml-4"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Plus className="w-5 h-5" />
+                </motion.button>
+              )}
             </div>
           </div>
         </motion.div>
