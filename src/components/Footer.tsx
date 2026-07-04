@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { ArrowUp, Github, Linkedin, Twitter, Dribbble, Heart } from "lucide-react";
+import { ArrowUp, Github, Linkedin, Twitter, Dribbble, Heart, Lock, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const socialLinks = [
   { icon: Github, href: "#", label: "GitHub" },
@@ -16,6 +18,7 @@ const footerLinks = [
 ];
 
 export const Footer = () => {
+  const { user, isAdmin, signOut } = useAuth();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -93,9 +96,29 @@ export const Footer = () => {
           <p className="text-sm text-primary-foreground/60">
             © {new Date().getFullYear()} Darwish. All rights reserved.
           </p>
-          <p className="text-sm text-primary-foreground/60 flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> and lots of coffee
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-primary-foreground/60 flex items-center gap-1">
+              Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> and lots of coffee
+            </p>
+            {user ? (
+              <button
+                onClick={() => signOut()}
+                className="text-xs text-primary-foreground/40 hover:text-accent transition-colors flex items-center gap-1"
+              >
+                <LogOut className="w-3 h-3" />
+                {isAdmin ? "Admin · Sign Out" : "Sign Out"}
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                className="text-xs text-primary-foreground/40 hover:text-accent transition-colors flex items-center gap-1"
+                aria-label="Admin login"
+              >
+                <Lock className="w-3 h-3" />
+                Admin
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </footer>
